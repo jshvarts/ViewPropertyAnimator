@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int ANIMATOR_SET_ROTATION = 1;
     private static final int ANIMATOR_SET_TRANSLATION = 2;
+    private static final int ANIMATOR_SET_SCALE = 3;
 
     @BindView(R.id.droid_blue_imageview)
     protected ImageView droidBlue;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.animator_button)
     protected void handleObjectAnimatorClick() {
+        // set start animator set
         performAnimatorSet(ANIMATOR_SET_ROTATION);
     }
 
@@ -63,11 +65,13 @@ public class MainActivity extends AppCompatActivity {
             case ANIMATOR_SET_TRANSLATION:
                 performTranslatorAnimations();
                 break;
+            case ANIMATOR_SET_SCALE:
+                performScaleAnimations();
+                break;
             default:
                 throw new IllegalArgumentException("invalid animatorSetId " + animatorSetId);
         }
     }
-
 
     private void performNextAnimatorSet(final int animatorSetId) {
         switch (animatorSetId) {
@@ -75,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 performTranslatorAnimations();
                 break;
             case ANIMATOR_SET_TRANSLATION:
+                performScaleAnimations();
+                break;
+            case ANIMATOR_SET_SCALE:
                 break;
             default:
                 throw new IllegalArgumentException("invalid animatorSetId " + animatorSetId);
@@ -84,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
     private void performRotationAnimations() {
         Log.d(LOG_TAG, "running performRotationAnimations");
 
-        /* START ROTATION ANIMATION */
         ObjectAnimator rotationX = ObjectAnimator.ofFloat(droidBlue, "rotationX", 0.0f, 360f);
         rotationX.setDuration(BASE_DURATION_MILLIS);
         rotationX.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -100,18 +106,21 @@ public class MainActivity extends AppCompatActivity {
         rotation.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(rotation, droidBlue);
 
-        final AnimatorSet rotationSequenceAnimator = new AnimatorSet();
-        rotationSequenceAnimator.playSequentially(rotationX, rotationY, rotation);
-        rotationSequenceAnimator.start();
-        /* END ROTATION ANIMATION */
+        ObjectAnimator rotationBack = ObjectAnimator.ofFloat(droidBlue, "rotation", 0.0f);
+        rotationBack.setDuration(BASE_DURATION_MILLIS);
+        rotationBack.setInterpolator(new AccelerateDecelerateInterpolator());
+        addAnimationListener(rotationBack, droidBlue);
 
-        controlNextAnimationSetStart(rotationSequenceAnimator, ANIMATOR_SET_ROTATION);
+        final AnimatorSet sequenceAnimator = new AnimatorSet();
+        sequenceAnimator.playSequentially(rotationX, rotationY, rotation, rotationBack);
+        sequenceAnimator.start();
+
+        controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_ROTATION);
     }
 
     private void performTranslatorAnimations() {
         Log.d(LOG_TAG, "running performTranslatorAnimations");
 
-        /* START TRANSLATION ANIMATION */
         ObjectAnimator translationX = ObjectAnimator.ofFloat(droidBlue, "translationX", 0.0f, 200f);
         translationX.setDuration(BASE_DURATION_MILLIS);
         translationX.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -122,19 +131,49 @@ public class MainActivity extends AppCompatActivity {
         translationY.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(translationY, droidBlue);
 
-        // move the image back to its original position
         PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("translationX", 0.0f);
         PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("translationY", 0.0f);
-        ObjectAnimator translationToOrigPosition = ObjectAnimator.ofPropertyValuesHolder(droidBlue, pvhX, pvhY);
-        translationToOrigPosition.setDuration(BASE_DURATION_MILLIS/2);
-        addAnimationListener(translationToOrigPosition, droidBlue);
+        ObjectAnimator backToOriginal = ObjectAnimator.ofPropertyValuesHolder(droidBlue, pvhX, pvhY);
+        backToOriginal.setDuration(BASE_DURATION_MILLIS/2);
+        addAnimationListener(backToOriginal, droidBlue);
 
-        final AnimatorSet translationSequenceAnimator = new AnimatorSet();
-        translationSequenceAnimator.playSequentially(translationX, translationY, translationToOrigPosition);
-        translationSequenceAnimator.start();
-        /* END TRANSLATION ANIMATION */
+        final AnimatorSet sequenceAnimator = new AnimatorSet();
+        sequenceAnimator.playSequentially(translationX, translationY, backToOriginal);
+        sequenceAnimator.start();
 
-        controlNextAnimationSetStart(translationSequenceAnimator, ANIMATOR_SET_TRANSLATION);
+        controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_TRANSLATION);
+    }
+
+    private void performScaleAnimations() {
+        Log.d(LOG_TAG, "running performScaleAnimations");
+
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(droidBlue, "scaleX", 1.0f, 1.5f);
+        scaleX.setDuration(BASE_DURATION_MILLIS);
+        scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
+        addAnimationListener(scaleX, droidBlue);
+
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(droidBlue, "scaleY", 1.0f, 1.5f);
+        scaleY.setDuration(BASE_DURATION_MILLIS);
+        scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
+        addAnimationListener(scaleY, droidBlue);
+
+        PropertyValuesHolder scaleSmallerX = PropertyValuesHolder.ofFloat("scaleX", 0.5f);
+        PropertyValuesHolder scaleSmallerY = PropertyValuesHolder.ofFloat("scaleY", 0.5f);
+        ObjectAnimator scaleSmaller = ObjectAnimator.ofPropertyValuesHolder(droidBlue, scaleSmallerX, scaleSmallerY);
+        scaleSmaller.setDuration(BASE_DURATION_MILLIS);
+        addAnimationListener(scaleSmaller, droidBlue);
+
+        PropertyValuesHolder scaleOrigX = PropertyValuesHolder.ofFloat("scaleX", 1.0f);
+        PropertyValuesHolder scaleOrigY = PropertyValuesHolder.ofFloat("scaleY", 1.0f);
+        ObjectAnimator backToOriginal = ObjectAnimator.ofPropertyValuesHolder(droidBlue, scaleOrigX, scaleOrigY);
+        backToOriginal.setDuration(BASE_DURATION_MILLIS);
+        addAnimationListener(backToOriginal, droidBlue);
+
+        final AnimatorSet sequenceAnimator = new AnimatorSet();
+        sequenceAnimator.playSequentially(scaleX, scaleY, scaleSmaller, backToOriginal);
+        sequenceAnimator.start();
+
+        controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_SCALE);
     }
 
     private void controlNextAnimationSetStart(final AnimatorSet currentAnimationSet, final int currentAnimatorSetId) {
