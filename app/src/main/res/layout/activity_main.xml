@@ -9,8 +9,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.jshvarts.objectanimator.MainActivity">
 
-    <TextView
+    <Button
+        android:id="@+id/object_animator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:text="Object Animator"/>
+
+    <ImageView
+        android:id="@+id/droid_blue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/droid_blue"
+        android:layout_centerInParent="true"/>
 </RelativeLayout>
