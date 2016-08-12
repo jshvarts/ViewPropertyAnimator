@@ -22,6 +22,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+/**
+ * https://developer.android.com/guide/topics/graphics/prop-animation.html
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int ANIMATOR_SET_ROTATION = 1;
     private static final int ANIMATOR_SET_TRANSLATION = 2;
     private static final int ANIMATOR_SET_SCALE = 3;
+    private static final int ANIMATOR_SET_ALPHA = 4;
 
     @BindView(R.id.droid_blue_imageview)
     protected ImageView droidBlue;
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.animator_button)
     protected void handleObjectAnimatorClick() {
         // set start animator set
-        performAnimatorSet(ANIMATOR_SET_ROTATION);
+        performAnimatorSet(ANIMATOR_SET_ALPHA);
     }
 
     private void performAnimatorSet(final int animatorSetId) {
@@ -67,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case ANIMATOR_SET_SCALE:
                 performScaleAnimations();
+                break;
+            case ANIMATOR_SET_ALPHA:
+                performAlphaAnimations();
                 break;
             default:
                 throw new IllegalArgumentException("invalid animatorSetId " + animatorSetId);
@@ -82,31 +89,38 @@ public class MainActivity extends AppCompatActivity {
                 performScaleAnimations();
                 break;
             case ANIMATOR_SET_SCALE:
+                performAlphaAnimations();
+                break;
+            case ANIMATOR_SET_ALPHA:
                 break;
             default:
                 throw new IllegalArgumentException("invalid animatorSetId " + animatorSetId);
         }
     }
 
+    /**
+     * rotation, rotationX, and rotationY: These properties control the rotation in 2D (rotation property)
+     * and 3D around the pivot point.
+     */
     private void performRotationAnimations() {
         Log.d(LOG_TAG, "running performRotationAnimations");
 
-        ObjectAnimator rotationX = ObjectAnimator.ofFloat(droidBlue, "rotationX", 0.0f, 360f);
+        ObjectAnimator rotationX = ObjectAnimator.ofFloat(droidBlue, View.ROTATION_X, 0.0f, 360f);
         rotationX.setDuration(BASE_DURATION_MILLIS);
         rotationX.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(rotationX, droidBlue);
 
-        ObjectAnimator rotationY = ObjectAnimator.ofFloat(droidBlue, "rotationY", 0.0f, 360f);
+        ObjectAnimator rotationY = ObjectAnimator.ofFloat(droidBlue, View.ROTATION_Y, 0.0f, 360f);
         rotationY.setDuration(BASE_DURATION_MILLIS);
         rotationY.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(rotationY, droidBlue);
 
-        ObjectAnimator rotation = ObjectAnimator.ofFloat(droidBlue, "rotation", 0.0f, 360f);
+        ObjectAnimator rotation = ObjectAnimator.ofFloat(droidBlue, View.ROTATION, 0.0f, 360f);
         rotation.setDuration(BASE_DURATION_MILLIS);
         rotation.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(rotation, droidBlue);
 
-        ObjectAnimator rotationBack = ObjectAnimator.ofFloat(droidBlue, "rotation", 0.0f);
+        ObjectAnimator rotationBack = ObjectAnimator.ofFloat(droidBlue, View.ROTATION, 0.0f);
         rotationBack.setDuration(BASE_DURATION_MILLIS);
         rotationBack.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(rotationBack, droidBlue);
@@ -118,21 +132,25 @@ public class MainActivity extends AppCompatActivity {
         controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_ROTATION);
     }
 
+    /**
+     * translationX and translationY: These properties control where the View is located as a delta
+     * from its left and top coordinates which are set by its layout container.
+     */
     private void performTranslatorAnimations() {
         Log.d(LOG_TAG, "running performTranslatorAnimations");
 
-        ObjectAnimator translationX = ObjectAnimator.ofFloat(droidBlue, "translationX", 0.0f, 200f);
+        ObjectAnimator translationX = ObjectAnimator.ofFloat(droidBlue, View.TRANSLATION_X, 0.0f, 200f);
         translationX.setDuration(BASE_DURATION_MILLIS);
         translationX.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(translationX, droidBlue);
 
-        ObjectAnimator translationY = ObjectAnimator.ofFloat(droidBlue, "translationY", 0.0f, 200f);
+        ObjectAnimator translationY = ObjectAnimator.ofFloat(droidBlue, View.TRANSLATION_Y, 0.0f, 200f);
         translationY.setDuration(BASE_DURATION_MILLIS);
         translationY.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(translationY, droidBlue);
 
-        PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("translationX", 0.0f);
-        PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("translationY", 0.0f);
+        PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, 0.0f);
+        PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, 0.0f);
         ObjectAnimator backToOriginal = ObjectAnimator.ofPropertyValuesHolder(droidBlue, pvhX, pvhY);
         backToOriginal.setDuration(BASE_DURATION_MILLIS/2);
         addAnimationListener(backToOriginal, droidBlue);
@@ -144,27 +162,30 @@ public class MainActivity extends AppCompatActivity {
         controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_TRANSLATION);
     }
 
+    /**
+     * scaleX and scaleY: These properties control the 2D scaling of a View around its pivot point.
+     */
     private void performScaleAnimations() {
         Log.d(LOG_TAG, "running performScaleAnimations");
 
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(droidBlue, "scaleX", 1.0f, 1.5f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(droidBlue, View.SCALE_X, 1.0f, 1.5f);
         scaleX.setDuration(BASE_DURATION_MILLIS);
         scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(scaleX, droidBlue);
 
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(droidBlue, "scaleY", 1.0f, 1.5f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(droidBlue, View.SCALE_Y, 1.0f, 1.5f);
         scaleY.setDuration(BASE_DURATION_MILLIS);
         scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
         addAnimationListener(scaleY, droidBlue);
 
-        PropertyValuesHolder scaleSmallerX = PropertyValuesHolder.ofFloat("scaleX", 0.5f);
-        PropertyValuesHolder scaleSmallerY = PropertyValuesHolder.ofFloat("scaleY", 0.5f);
+        PropertyValuesHolder scaleSmallerX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0.5f);
+        PropertyValuesHolder scaleSmallerY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.5f);
         ObjectAnimator scaleSmaller = ObjectAnimator.ofPropertyValuesHolder(droidBlue, scaleSmallerX, scaleSmallerY);
         scaleSmaller.setDuration(BASE_DURATION_MILLIS);
         addAnimationListener(scaleSmaller, droidBlue);
 
-        PropertyValuesHolder scaleOrigX = PropertyValuesHolder.ofFloat("scaleX", 1.0f);
-        PropertyValuesHolder scaleOrigY = PropertyValuesHolder.ofFloat("scaleY", 1.0f);
+        PropertyValuesHolder scaleOrigX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.0f);
+        PropertyValuesHolder scaleOrigY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.0f);
         ObjectAnimator backToOriginal = ObjectAnimator.ofPropertyValuesHolder(droidBlue, scaleOrigX, scaleOrigY);
         backToOriginal.setDuration(BASE_DURATION_MILLIS);
         addAnimationListener(backToOriginal, droidBlue);
@@ -174,6 +195,28 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.start();
 
         controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_SCALE);
+    }
+
+    /**
+     * alpha: Represents the alpha transparency on the View. This value is 1 (opaque) by default,
+     * with a value of 0 representing full transparency (not visible).
+     */
+    private void performAlphaAnimations() {
+        Log.d(LOG_TAG, "running performAlphaAnimations");
+
+        ObjectAnimator alphaToTransparent = ObjectAnimator.ofFloat(droidBlue, View.ALPHA, 0.0f);
+        alphaToTransparent.setDuration(BASE_DURATION_MILLIS);
+        addAnimationListener(alphaToTransparent, droidBlue);
+
+        ObjectAnimator alphaToOpaque = ObjectAnimator.ofFloat(droidBlue, View.ALPHA, 1.0f);
+        alphaToOpaque.setDuration(BASE_DURATION_MILLIS);
+        addAnimationListener(alphaToOpaque, droidBlue);
+
+        final AnimatorSet sequenceAnimator = new AnimatorSet();
+        sequenceAnimator.playSequentially(alphaToTransparent, alphaToOpaque);
+        sequenceAnimator.start();
+
+        controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_ALPHA);
     }
 
     private void controlNextAnimationSetStart(final AnimatorSet currentAnimationSet, final int currentAnimatorSetId) {
@@ -223,7 +266,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateButtonText(String newText) {
         Preconditions.checkNotNull(newText, "newText must not be null");
-        Log.d(LOG_TAG, "Updating button text to " + newText);
         animatorButton.setText(newText);
     }
 }
