@@ -1,6 +1,5 @@
 package com.jshvarts.objectanimator;
 
-import android.animation.AnimatorSet;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,16 +10,15 @@ import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * https://developer.android.com/guide/topics/graphics/prop-animation.html
+ * https://developer.android.com/reference/android/view/ViewPropertyAnimator.html
+ *
+ * http://android-developers.blogspot.com/2011/05/introducing-viewpropertyanimator.html
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -34,8 +32,6 @@ public class MainActivity extends AppCompatActivity {
     protected Button animatorButton;
 
     private String animatorButtonOrigText;
-
-    private ScheduledExecutorService scheduler;
 
     private enum AnimatorType {
         ROTATION,
@@ -118,6 +114,34 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "running performRotationAnimations");
 
         currentAnimatorType = AnimatorType.ROTATION;
+
+        updateButtonText("rotation");
+
+        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).rotationX(360f)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).rotationY(360f)
+                                .withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).rotation(360f)
+                                                .withEndAction(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).rotation(0f)
+                                                                .withEndAction(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        processNextAnimatorType();
+                                                                    }
+                                                                });
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
+                });
     }
 
     /**
@@ -128,6 +152,28 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "running performTranslatorAnimations");
 
         currentAnimatorType = AnimatorType.TRANSLATION;
+
+        updateButtonText("translation");
+
+        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).translationX(200f)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).translationY(200f)
+                                .withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).translationX(0f).translationY(0f)
+                                                .withEndAction(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        processNextAnimatorType();
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
+                });
     }
 
     /**
@@ -137,6 +183,29 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "running performScaleAnimations");
 
         currentAnimatorType = AnimatorType.SCALE;
+
+        updateButtonText("scale");
+
+        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).scaleX(1.5f)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).scaleX(1.5f)
+                                .withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).scaleX(1f).scaleY(1f)
+                                                .withEndAction(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        processNextAnimatorType();
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
+                });
+
     }
 
     /**
@@ -147,24 +216,22 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "running performAlphaAnimations");
 
         currentAnimatorType = AnimatorType.ALPHA;
-    }
 
-    private void controlNextAnimatorSetStart(final AnimatorSet currentAnimatorSet) {
-        Preconditions.checkNotNull(currentAnimatorSet, "currentAnimationSet must not be null");
-        scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new Runnable() {
+        updateButtonText("alpha");
+
+        droidBlue.animate().setDuration(BASE_DURATION_MILLIS).alpha(0)
+                .withEndAction(new Runnable() {
+            @Override
             public void run() {
-                if (!currentAnimatorSet.isStarted()) {
-                    scheduler.shutdownNow();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            processNextAnimatorType();
-                        }
-                    });
-                }
+                droidBlue.animate().setDuration(BASE_DURATION_MILLIS).alpha(1)
+                        .withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                processNextAnimatorType();
+                            }
+                        });
             }
-        }, 0, 1, TimeUnit.SECONDS);
+        });
     }
 
     private void updateButtonText(String newText) {
