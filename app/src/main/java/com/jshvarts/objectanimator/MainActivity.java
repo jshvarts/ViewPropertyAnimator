@@ -1,16 +1,9 @@
 package com.jshvarts.objectanimator;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -71,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.animator_button)
-    protected void handleObjectAnimatorClick() {
+    protected void handleAnimatorButtonClick() {
         animatorButton.setEnabled(false);
         processNextAnimatorType();
     }
@@ -125,32 +118,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "running performRotationAnimations");
 
         currentAnimatorType = AnimatorType.ROTATION;
-
-        ObjectAnimator rotationX = ObjectAnimator.ofFloat(droidBlue, View.ROTATION_X, 0f, 360f);
-        rotationX.setDuration(BASE_DURATION_MILLIS);
-        rotationX.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(rotationX, droidBlue);
-
-        ObjectAnimator rotationY = ObjectAnimator.ofFloat(droidBlue, View.ROTATION_Y, 0f, 360f);
-        rotationY.setDuration(BASE_DURATION_MILLIS);
-        rotationY.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(rotationY, droidBlue);
-
-        ObjectAnimator rotation = ObjectAnimator.ofFloat(droidBlue, View.ROTATION, 0f, 360f);
-        rotation.setDuration(BASE_DURATION_MILLIS);
-        rotation.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(rotation, droidBlue);
-
-        ObjectAnimator rotationBack = ObjectAnimator.ofFloat(droidBlue, View.ROTATION, 0f);
-        rotationBack.setDuration(BASE_DURATION_MILLIS);
-        rotationBack.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(rotationBack, droidBlue);
-
-        final AnimatorSet sequenceAnimator = new AnimatorSet();
-        sequenceAnimator.playSequentially(rotationX, rotationY, rotation, rotationBack);
-        sequenceAnimator.start();
-
-        controlNextAnimatorSetStart(sequenceAnimator);
     }
 
     /**
@@ -161,35 +128,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "running performTranslatorAnimations");
 
         currentAnimatorType = AnimatorType.TRANSLATION;
-
-        ObjectAnimator translationX = ObjectAnimator.ofFloat(droidBlue, View.TRANSLATION_X, 0f, 200f);
-        translationX.setDuration(BASE_DURATION_MILLIS);
-        translationX.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(translationX, droidBlue);
-
-        ObjectAnimator translationY = ObjectAnimator.ofFloat(droidBlue, View.TRANSLATION_Y, 0f, 200f);
-        translationY.setDuration(BASE_DURATION_MILLIS);
-        translationY.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(translationY, droidBlue);
-
-        /* Api level 21+
-        ObjectAnimator translationZ = ObjectAnimator.ofFloat(droidBlue, View.TRANSLATION_Z, 0f, 20f);
-        translationZ.setDuration(BASE_DURATION_MILLIS);
-        translationZ.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(translationZ, droidBlue);
-        */
-
-        PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, 0f);
-        PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, 0f);
-        ObjectAnimator backToOriginal = ObjectAnimator.ofPropertyValuesHolder(droidBlue, pvhX, pvhY);
-        backToOriginal.setDuration(BASE_DURATION_MILLIS/2);
-        addAnimationListener(backToOriginal, droidBlue);
-
-        final AnimatorSet sequenceAnimator = new AnimatorSet();
-        sequenceAnimator.playSequentially(translationX, translationY, backToOriginal);
-        sequenceAnimator.start();
-
-        controlNextAnimatorSetStart(sequenceAnimator);
     }
 
     /**
@@ -199,34 +137,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "running performScaleAnimations");
 
         currentAnimatorType = AnimatorType.SCALE;
-
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(droidBlue, View.SCALE_X, 1f, 1.5f);
-        scaleX.setDuration(BASE_DURATION_MILLIS);
-        scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(scaleX, droidBlue);
-
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(droidBlue, View.SCALE_Y, 1f, 1.5f);
-        scaleY.setDuration(BASE_DURATION_MILLIS);
-        scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
-        addAnimationListener(scaleY, droidBlue);
-
-        PropertyValuesHolder scaleSmallerX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0.5f);
-        PropertyValuesHolder scaleSmallerY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.5f);
-        ObjectAnimator scaleSmaller = ObjectAnimator.ofPropertyValuesHolder(droidBlue, scaleSmallerX, scaleSmallerY);
-        scaleSmaller.setDuration(BASE_DURATION_MILLIS);
-        addAnimationListener(scaleSmaller, droidBlue);
-
-        PropertyValuesHolder scaleOrigX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f);
-        PropertyValuesHolder scaleOrigY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f);
-        ObjectAnimator backToOriginal = ObjectAnimator.ofPropertyValuesHolder(droidBlue, scaleOrigX, scaleOrigY);
-        backToOriginal.setDuration(BASE_DURATION_MILLIS);
-        addAnimationListener(backToOriginal, droidBlue);
-
-        final AnimatorSet sequenceAnimator = new AnimatorSet();
-        sequenceAnimator.playSequentially(scaleX, scaleY, scaleSmaller, backToOriginal);
-        sequenceAnimator.start();
-
-        controlNextAnimatorSetStart(sequenceAnimator);
     }
 
     /**
@@ -237,62 +147,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "running performAlphaAnimations");
 
         currentAnimatorType = AnimatorType.ALPHA;
-
-        ObjectAnimator alphaToTransparent = ObjectAnimator.ofFloat(droidBlue, View.ALPHA, 0f);
-        alphaToTransparent.setDuration(BASE_DURATION_MILLIS);
-        addAnimationListener(alphaToTransparent, droidBlue);
-
-        ObjectAnimator alphaToOpaque = ObjectAnimator.ofFloat(droidBlue, View.ALPHA, 1f);
-        alphaToOpaque.setDuration(BASE_DURATION_MILLIS);
-        addAnimationListener(alphaToOpaque, droidBlue);
-
-        final AnimatorSet sequenceAnimator = new AnimatorSet();
-        sequenceAnimator.playSequentially(alphaToTransparent, alphaToOpaque);
-        sequenceAnimator.start();
-
-        controlNextAnimatorSetStart(sequenceAnimator);
-    }
-
-    /**
-     * x and y: These are simple utility properties to describe the final location of the View
-     * in its container, as a sum of the left and top values and translationX and translationY values.
-     */
-    private void performXYAnimations() {
-        Log.d(LOG_TAG, "running performXYAnimations");
-
-        Log.d(LOG_TAG, "my X before: " + droidBlue.getX());
-        Log.d(LOG_TAG, "my Y before: " + droidBlue.getY());
-        Log.d(LOG_TAG, "my left before: " + droidBlue.getLeft());
-        Log.d(LOG_TAG, "my top before: " + droidBlue.getTop());
-        Log.d(LOG_TAG, "my translationX before: " + droidBlue.getTranslationX());
-        Log.d(LOG_TAG, "my translationY before: " + droidBlue.getTranslationY());
-
-        PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat(View.X, 100f);
-        PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat(View.Y, 100f);
-        ObjectAnimator move = ObjectAnimator.ofPropertyValuesHolder(droidBlue, pvhX, pvhY);
-        move.setDuration(BASE_DURATION_MILLIS);
-        addAnimationListener(move, droidBlue);
-
-        // Note: the X and Y locations do not change until animation completes
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(LOG_TAG, "my X after: " + droidBlue.getX());
-                Log.d(LOG_TAG, "my Y after: " + droidBlue.getY());
-                Log.d(LOG_TAG, "my left after: " + droidBlue.getLeft());
-                Log.d(LOG_TAG, "my top after: " + droidBlue.getTop());
-                Log.d(LOG_TAG, "my translationX after: " + droidBlue.getTranslationX());
-                Log.d(LOG_TAG, "my translationY after: " + droidBlue.getTranslationY());
-            }
-        }, BASE_DURATION_MILLIS * 2);
-
-        //ObjectAnimator.ofPropertyValuesHolder(myView, pvhX, pvyY).start();
-
-        final AnimatorSet sequenceAnimator = new AnimatorSet();
-        sequenceAnimator.playSequentially(move);
-        sequenceAnimator.start();
-
-        //controlNextAnimatorSetStart(sequenceAnimator);
     }
 
     private void controlNextAnimatorSetStart(final AnimatorSet currentAnimatorSet) {
@@ -311,18 +165,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }, 0, 1, TimeUnit.SECONDS);
-    }
-
-    private void addAnimationListener(Animator animator, final View view) {
-        Preconditions.checkNotNull(animator, "animator must not be null");
-        Preconditions.checkNotNull(view, "view must not be null");
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                view.clearAnimation();
-                updateButtonText(((ObjectAnimator) animation).getPropertyName());
-            }
-        });
     }
 
     private void updateButtonText(String newText) {
