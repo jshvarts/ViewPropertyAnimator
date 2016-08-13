@@ -43,14 +43,14 @@ public class MainActivity extends AppCompatActivity {
 
     private ScheduledExecutorService scheduler;
 
-    public enum AnimatorType {
+    private enum AnimatorType {
         ROTATION,
         TRANSLATION,
         SCALE,
         ALPHA
     }
 
-    private static List<AnimatorType> animatorTypes = new ArrayList<AnimatorType>() {{
+    private final List<AnimatorType> animatorTypes = new ArrayList<AnimatorType>() {{
         add(AnimatorType.ROTATION);
         add(AnimatorType.TRANSLATION);
         add(AnimatorType.SCALE);
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(rotationX, rotationY, rotation, rotationBack);
         sequenceAnimator.start();
 
-        controlNextAnimationSetStart(sequenceAnimator);
+        controlNextAnimatorSetStart(sequenceAnimator);
     }
 
     /**
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(translationX, translationY, backToOriginal);
         sequenceAnimator.start();
 
-        controlNextAnimationSetStart(sequenceAnimator);
+        controlNextAnimatorSetStart(sequenceAnimator);
     }
 
     /**
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(scaleX, scaleY, scaleSmaller, backToOriginal);
         sequenceAnimator.start();
 
-        controlNextAnimationSetStart(sequenceAnimator);
+        controlNextAnimatorSetStart(sequenceAnimator);
     }
 
     /**
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(alphaToTransparent, alphaToOpaque);
         sequenceAnimator.start();
 
-        controlNextAnimationSetStart(sequenceAnimator);
+        controlNextAnimatorSetStart(sequenceAnimator);
     }
 
     /**
@@ -291,15 +291,15 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(move);
         sequenceAnimator.start();
 
-        //controlNextAnimationSetStart(sequenceAnimator);
+        //controlNextAnimatorSetStart(sequenceAnimator);
     }
 
-    private void controlNextAnimationSetStart(final AnimatorSet currentAnimationSet) {
-        Preconditions.checkNotNull(currentAnimationSet, "currentAnimationSet must not be null");
+    private void controlNextAnimatorSetStart(final AnimatorSet currentAnimatorSet) {
+        Preconditions.checkNotNull(currentAnimatorSet, "currentAnimationSet must not be null");
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                if (!currentAnimationSet.isStarted()) {
+                if (!currentAnimatorSet.isStarted()) {
                     scheduler.shutdownNow();
                     runOnUiThread(new Runnable() {
                         @Override
