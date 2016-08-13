@@ -1,6 +1,7 @@
 package com.jshvarts.objectanimator;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
@@ -315,26 +316,11 @@ public class MainActivity extends AppCompatActivity {
     private void addAnimationListener(Animator animator, final View view) {
         Preconditions.checkNotNull(animator, "animator must not be null");
         Preconditions.checkNotNull(view, "view must not be null");
-        animator.addListener(new Animator.AnimatorListener() {
+        animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 view.clearAnimation();
                 updateButtonText(((ObjectAnimator) animation).getPropertyName());
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
             }
         });
     }
