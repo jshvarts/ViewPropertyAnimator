@@ -15,6 +15,8 @@ import android.widget.ImageView;
 
 import com.google.common.base.Preconditions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,11 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final int BASE_DURATION_MILLIS = 2000;
 
-    private static final int ANIMATOR_SET_ROTATION = 1;
-    private static final int ANIMATOR_SET_TRANSLATION = 2;
-    private static final int ANIMATOR_SET_SCALE = 3;
-    private static final int ANIMATOR_SET_ALPHA = 4;
-
     @BindView(R.id.droid_blue_imageview)
     protected ImageView droidBlue;
 
@@ -45,6 +42,22 @@ public class MainActivity extends AppCompatActivity {
     private String animatorButtonOrigText;
 
     private ScheduledExecutorService scheduler;
+
+    public enum AnimatorType {
+        ROTATION,
+        TRANSLATION,
+        SCALE,
+        ALPHA
+    }
+
+    private static List<AnimatorType> animatorTypes = new ArrayList<AnimatorType>() {{
+        add(AnimatorType.ROTATION);
+        add(AnimatorType.TRANSLATION);
+        add(AnimatorType.SCALE);
+        add(AnimatorType.ALPHA);
+    }};
+
+    private AnimatorType currentAnimatorType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,45 +71,49 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.animator_button)
     protected void handleObjectAnimatorClick() {
-        // set start animator set
-        performAnimatorSet(ANIMATOR_SET_ROTATION);
+        animatorButton.setEnabled(false);
+        processNextAnimatorType();
     }
 
-    private void performAnimatorSet(final int animatorSetId) {
-        switch (animatorSetId) {
-            case ANIMATOR_SET_ROTATION:
+    private void processNextAnimatorType() {
+        Preconditions.checkState((animatorTypes != null && !animatorTypes.isEmpty()), "list of animator types cannot be null or empty");
+
+        AnimatorType animatorType;
+        if (currentAnimatorType == null) {
+            // run the fist animator set
+            animatorType = animatorTypes.get(0);
+        } else {
+            try {
+                // try to locate next animation to run
+                animatorType = animatorTypes.get(animatorTypes.indexOf(currentAnimatorType)+1);
+            } catch (IndexOutOfBoundsException e) {
+                Log.d(LOG_TAG, "no more animator sets left to run");
+                resetState();
+                return;
+            }
+        }
+        switch (animatorType) {
+            case ROTATION:
                 performRotationAnimations();
                 break;
-            case ANIMATOR_SET_TRANSLATION:
+            case TRANSLATION:
                 performTranslatorAnimations();
                 break;
-            case ANIMATOR_SET_SCALE:
+            case SCALE:
                 performScaleAnimations();
                 break;
-            case ANIMATOR_SET_ALPHA:
+            case ALPHA:
                 performAlphaAnimations();
                 break;
             default:
-                throw new IllegalArgumentException("invalid animatorSetId " + animatorSetId);
+                throw new IllegalArgumentException("invalid animatorType " + animatorType);
         }
     }
 
-    private void performNextAnimatorSet(final int animatorSetId) {
-        switch (animatorSetId) {
-            case ANIMATOR_SET_ROTATION:
-                performTranslatorAnimations();
-                break;
-            case ANIMATOR_SET_TRANSLATION:
-                performScaleAnimations();
-                break;
-            case ANIMATOR_SET_SCALE:
-                performAlphaAnimations();
-                break;
-            case ANIMATOR_SET_ALPHA:
-                break;
-            default:
-                throw new IllegalArgumentException("invalid animatorSetId " + animatorSetId);
-        }
+    private void resetState() {
+        updateButtonText(animatorButtonOrigText);
+        animatorButton.setEnabled(true);
+        currentAnimatorType = null;
     }
 
     /**
@@ -105,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void performRotationAnimations() {
         Log.d(LOG_TAG, "running performRotationAnimations");
+
+        currentAnimatorType = AnimatorType.ROTATION;
 
         ObjectAnimator rotationX = ObjectAnimator.ofFloat(droidBlue, View.ROTATION_X, 0f, 360f);
         rotationX.setDuration(BASE_DURATION_MILLIS);
@@ -130,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(rotationX, rotationY, rotation, rotationBack);
         sequenceAnimator.start();
 
-        controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_ROTATION);
+        controlNextAnimationSetStart(sequenceAnimator);
     }
 
     /**
@@ -139,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void performTranslatorAnimations() {
         Log.d(LOG_TAG, "running performTranslatorAnimations");
+
+        currentAnimatorType = AnimatorType.TRANSLATION;
 
         ObjectAnimator translationX = ObjectAnimator.ofFloat(droidBlue, View.TRANSLATION_X, 0f, 200f);
         translationX.setDuration(BASE_DURATION_MILLIS);
@@ -167,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(translationX, translationY, backToOriginal);
         sequenceAnimator.start();
 
-        controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_TRANSLATION);
+        controlNextAnimationSetStart(sequenceAnimator);
     }
 
     /**
@@ -175,6 +196,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void performScaleAnimations() {
         Log.d(LOG_TAG, "running performScaleAnimations");
+
+        currentAnimatorType = AnimatorType.SCALE;
 
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(droidBlue, View.SCALE_X, 1f, 1.5f);
         scaleX.setDuration(BASE_DURATION_MILLIS);
@@ -202,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(scaleX, scaleY, scaleSmaller, backToOriginal);
         sequenceAnimator.start();
 
-        controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_SCALE);
+        controlNextAnimationSetStart(sequenceAnimator);
     }
 
     /**
@@ -211,6 +234,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void performAlphaAnimations() {
         Log.d(LOG_TAG, "running performAlphaAnimations");
+
+        currentAnimatorType = AnimatorType.ALPHA;
 
         ObjectAnimator alphaToTransparent = ObjectAnimator.ofFloat(droidBlue, View.ALPHA, 0f);
         alphaToTransparent.setDuration(BASE_DURATION_MILLIS);
@@ -224,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(alphaToTransparent, alphaToOpaque);
         sequenceAnimator.start();
 
-        controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_ALPHA);
+        controlNextAnimationSetStart(sequenceAnimator);
     }
 
     /**
@@ -266,10 +291,10 @@ public class MainActivity extends AppCompatActivity {
         sequenceAnimator.playSequentially(move);
         sequenceAnimator.start();
 
-        //controlNextAnimationSetStart(sequenceAnimator, ANIMATOR_SET_XY);
+        //controlNextAnimationSetStart(sequenceAnimator);
     }
 
-    private void controlNextAnimationSetStart(final AnimatorSet currentAnimationSet, final int currentAnimatorSetId) {
+    private void controlNextAnimationSetStart(final AnimatorSet currentAnimationSet) {
         Preconditions.checkNotNull(currentAnimationSet, "currentAnimationSet must not be null");
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(new Runnable() {
@@ -279,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            performNextAnimatorSet(currentAnimatorSetId);
+                            processNextAnimatorType();
                         }
                     });
                 }
@@ -299,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                updateButtonText(animatorButtonOrigText);
+
             }
 
             @Override
