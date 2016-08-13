@@ -37,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
         ROTATION,
         TRANSLATION,
         SCALE,
-        ALPHA
+        ALPHA,
+        COMBO
     }
 
     private final List<AnimatorType> animatorTypes = new ArrayList<AnimatorType>() {{
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         add(AnimatorType.TRANSLATION);
         add(AnimatorType.SCALE);
         add(AnimatorType.ALPHA);
+        add(AnimatorType.COMBO);
     }};
 
     private AnimatorType currentAnimatorType;
@@ -94,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case ALPHA:
                 performAlphaAnimations();
+                break;
+            case COMBO:
+                performComboAnimations();
                 break;
             default:
                 throw new IllegalArgumentException("invalid animatorType " + animatorType);
@@ -232,6 +237,28 @@ public class MainActivity extends AppCompatActivity {
                         });
             }
         });
+    }
+
+    private void performComboAnimations() {
+        Log.d(LOG_TAG, "running performComboAnimations");
+
+        currentAnimatorType = AnimatorType.COMBO;
+
+        updateButtonText("combo");
+
+        droidBlue.animate().setDuration(BASE_DURATION_MILLIS * 2)
+                .translationY(50f)
+                .translationY(50f)
+                .scaleX(1.5f)
+                .scaleY(1.5f)
+                .rotation(360f)
+                .alpha(0f)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        processNextAnimatorType();
+                    }
+                });
     }
 
     private void updateButtonText(String newText) {
